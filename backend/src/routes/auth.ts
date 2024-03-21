@@ -7,52 +7,58 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-router.post("/login", [ //Validation
+router.post(
+  "/login",
+  [
+    //Validation
     check("email", "Email is required").isEmail(),
-    check("password", "Password with 6 or more characters required").isLength({ 
-        min:6
+    check("password", "Password with 6 or more characters required").isLength({
+      min: 6,
     }),
-], async (req: Request, res: Response) => {
+  ],
+  async (req: Request, res: Response) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) { // Sending the Validation Result
-        return res.status(400).json({ message: errors.array() });
+    if (!errors.isEmpty()) {
+      // Sending the Validation Result
+      return res.status(400).json({ message: errors.array() });
     }
 
     const { email, password } = req.body;
 
-    try { // Compare the Email and Password
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "Invalid Credentials!"})
+    try {
+      // Compare the Email and Password
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid Credentials!" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid Credentials!" });
+      }
+
+      // Generating the Token
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET_KEY as string,
+        {
+          expiresIn: "1d",
         }
+      );
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid Credentials!"})
-        }
+      // Generating the Cookie with Token
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 86400000,
+      });
 
-        // Generating the Token
-        const token = jwt.sign(
-            { userId: user.id},
-            process.env.JWT_SECRET_KEY as string,
-            {
-                expiresIn: "1d",
-            }
-        );
-        
-        // Generating the Cookie with Token
-        res.cookie("auth_token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 86400000,
-        });
-
-        res.status(200).json({ userId: user._id});
-
+      res.status(200).json({ userId: user._id });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Something went wrong."});
+      console.log(error);
+      res.status(500).json({ message: "Something went wrong." });
     }
-});
+  }
+);
 
 export default router;

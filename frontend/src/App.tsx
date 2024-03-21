@@ -2,30 +2,30 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate
-} from "react-router-dom"
-import Layout from './layouts/Layout'
-import Register from "./pages/Register"
+  Navigate,
+} from "react-router-dom";
+import Layout from "./layouts/Layout";
+import Register from "./pages/Register";
 
-const App =() => {
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <Layout>
               <p>Home Page</p>
             </Layout>
-          } 
+          }
         />
-        <Route 
-          path="/search" 
+        <Route
+          path="/search"
           element={
             <Layout>
               <p>Search page</p>
             </Layout>
-          } 
+          }
         />
         <Route
           path="/register"
@@ -35,15 +35,10 @@ const App =() => {
             </Layout>
           }
         />
-        <Route 
-          path="*" 
-          element={
-            <Navigate to="/" />
-          } 
-        />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
-  )
-}
+  );
+};
 
-export default App
+export default App;
