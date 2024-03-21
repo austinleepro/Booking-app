@@ -56,7 +56,7 @@ router.post(
       });
 
       // Send the Success Status to the Frontend
-      res.sendStatus(200);
+      res.status(200).send({ message: "User registered OK" });
     } catch (error) {
       console.log(error);
       res.status(500).send({ message: "Something went wrong!" });
