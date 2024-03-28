@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
 import multer from "multer";
 import cloudinary from "cloudinary";
+
 import Hotel, { HotelType } from "../models/hotel";
 import verifyToken from "../middleware/auth";
 import { body } from "express-validator";
+const { Buffer } = require("node:buffer");
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -43,7 +45,7 @@ router.post(
 
       const uplodadPromises = imageFiles.map(async (image) => {
         const b64 = Buffer.from(image.buffer).toString("base64");
-        let dataURI = "data:" + image.mimetype + ";base64" + b64;
+        let dataURI = "data:" + image.mimetype + ";base64," + b64;
         const res = await cloudinary.v2.uploader.upload(dataURI);
 
         return res.url;
